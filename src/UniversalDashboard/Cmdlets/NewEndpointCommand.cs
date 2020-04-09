@@ -4,13 +4,12 @@ using System.Management.Automation;
 using System.Management.Automation.Language;
 using System.Text.RegularExpressions;
 using UniversalDashboard.Models;
-using UniversalDashboard.Services;
 using System.Linq;
 
 namespace UniversalDashboard.Cmdlets
 {
 	[Cmdlet(VerbsCommon.New, "UDEndpoint", DefaultParameterSetName = "Generic")]
-    public class NewEndpointCommand : PSCmdlet
+    public class NewEndpointCommand : PSCmdlet, IDynamicParameters
     {
 		[Parameter(Mandatory = true)]
 		public ScriptBlock Endpoint { get; set; }
@@ -28,7 +27,7 @@ namespace UniversalDashboard.Cmdlets
         public SwitchParameter EvaluateUrlAsRegex { get; set; }
 
 		[Parameter(ParameterSetName = "Rest")]
-		[ValidateSet("GET", "POST", "DELETE", "PUT", "PATCH")]
+		[ValidateSet("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS")]
 		public string Method { get; set; } = "GET";
 
         [Parameter(ParameterSetName = "Rest")]
@@ -36,6 +35,13 @@ namespace UniversalDashboard.Cmdlets
 
         [Parameter(Mandatory = true, ParameterSetName = "Scheduled")]
         public EndpointSchedule Schedule { get; set; }
+
+        public static RuntimeDefinedParameterDictionary DynamicParameters { get; } = new RuntimeDefinedParameterDictionary();
+
+        public object GetDynamicParameters()
+        {
+            return DynamicParameters;
+        }
 
 	    protected override void EndProcessing()
 	    {
@@ -50,6 +56,7 @@ namespace UniversalDashboard.Cmdlets
 		    };
 
             callback.Variables = new Dictionary<string, object>();
+            callback.Properties = MyInvocation.BoundParameters;
 
             try
             {
@@ -69,6 +76,7 @@ namespace UniversalDashboard.Cmdlets
             {
                 WriteWarning(ex.Message);
             }
+
             if (AcceptFileUpload) {
                 callback.AcceptFileUpload = true;
             }
@@ -80,11 +88,8 @@ namespace UniversalDashboard.Cmdlets
             callback.SessionId = SessionState.PSVariable.Get(Constants.SessionId)?.Value as string;
             callback.Page = SessionState.PSVariable.Get(Constants.UDPage)?.Value as Page;
 
-            if (callback.Schedule == null) 
-            {
-                var state = this.GetHostState();
-                state.EndpointService.Register(callback);
-            }
+            var state = this.GetHostState();                
+            state?.EndpointService?.Register(callback);
             
             WriteObject(callback);
 	    }

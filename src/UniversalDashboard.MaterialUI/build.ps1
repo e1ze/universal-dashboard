@@ -38,32 +38,62 @@ $manifestParameters = @{
     Path              = "$OutputPath\UniversalDashboard.MaterialUI.psd1"
     Author            = "Adam Driscoll"
     CompanyName       = "Ironman Software, LLC"
-    Copyright         = "2019 Ironman Software, LLC"
+    Copyright         = "2020 Ironman Software, LLC"
     RootModule        = "UniversalDashboard.MaterialUI.psm1"
     Description       = "Material UI bundle for Universal Dashboard."
     ModuleVersion     = $version
     Tags              = @("universaldashboard", "material UI", "materialdesign")
     ReleaseNotes      = "Initial release"
     FunctionsToExport = @(
-        "New-UDMuChip", 
-        "New-UDMuPaper", 
+        "New-UDAppBar"
+        "New-UDDrawer"
+        "New-UDChip", 
+        "New-UDPaper", 
         "New-UDIconButton", 
-        "New-UDMuList", 
-        "New-UDMuListItem", 
-        "New-UDPdf", 
-        "New-UDMuExpandListItem", 
-        "New-UDMuButton", 
-        "New-UDMuCard", 
-        "New-UDMuCardMedia" , 
-        "New-UDMuTypography", 
-        "New-UDMuCardToolbar"
-        "New-UDMuCardHeader"
-        "New-UDMuCardBody"
-        "New-UDMuCardExpand"
-        "New-UDMuCardFooter"
-        "New-UDMuLink"
-        "New-UDMuAvatar"
-        "New-UDMuCheckBox"
+        "New-UDList", 
+        "New-UDListItem", 
+        "New-UDButton", 
+        "New-UDCard", 
+        "New-UDCardMedia" , 
+        "New-UDTypography", 
+        "New-UDCardToolbar"
+        "New-UDCardHeader"
+        "New-UDCardBody"
+        "New-UDCardExpand"
+        "New-UDCardFooter"
+        "New-UDLink"
+        "New-UDAvatar"
+        "New-UDCheckBox"
+        "New-UDProgress"
+        "New-UDExpansionPanelGroup"
+        "New-UDExpansionPanel"
+        "New-UDFloatingActionButton"
+        "New-UDTab"
+        "New-UDTabs"
+        "New-UDGrid"
+        "New-UDTable"
+        "New-UDRow"
+        "New-UDColumn"
+        "New-UDSelect"
+        "New-UDSelectOption"
+        "New-UDSelectGroup"
+        "New-UDTextbox"
+        "New-UDSwitch"
+        "New-UDTreeView"
+        "New-UDTreeNode"
+        "New-UDTableColumn"
+        "Out-UDTableData"
+        "New-UDForm"
+        "New-UDDatePicker"
+        "New-UDTimePicker"
+        "New-UDRadio"
+        "New-UDRadioGroup"
+        "New-UDContainer"
+        "New-UDAutocomplete"
+        "New-UDFormValidationResult"
+        "New-UDStep"
+        "New-UDStepper"
+        "New-UDSlider"
     )
     RequiredModules   = @()
 }

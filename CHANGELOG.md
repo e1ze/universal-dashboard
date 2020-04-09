@@ -4,6 +4,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased 
+
+### Added 
+
+- Added -Key parameter to Clear-UDCache to clear a specific item (#1491) by [adamdriscoll](https://github.com/adamdriscoll)
+- Added -LoadingComponent parameter to New-UDDynamic to allow for configuration of loading component (#1562) by [adamdriscoll](https://github.com/adamdriscoll)
+- Added New-UDAutocomplete component by [adamdriscoll](https://github.com/adamdriscoll)
+- Added support for OPTIONS endpoints by [adamdriscoll](https://github.com/adamdriscoll)
+- Added -OnProcessing to New-UDForm to allow for custom loading dialogs by [adamdriscoll](https://github.com/adamdriscoll)
+- Added -OnValidating to New-UDForm to support validating forms by [adamdriscoll](https://github.com/adamdriscoll)
+- Added New-UDStepper and New-UDStep to support a wizard-like control by [adamdriscoll](https://github.com/adamdriscoll)
+- Added New-UDSlider by [adamdriscoll](https://github.com/adamdriscoll)
+- Added -FullScreen, -FullWidth, -MaxWidth to Show-UDModal by [adamdriscoll](https://github.com/adamdriscoll)
+- Added -UseMesh to Nivo Line chart by [adamdriscoll](https://github.com/adamdriscoll)
+- [Enterprise] Added -CachePolicy to New-UDPage by [adamdriscoll](https://github.com/adamdriscoll)
+- Invoke-UDEndpoint to manually invoke endpoints by [adamdriscoll](https://github.com/adamdriscoll)
+- Remove-UDEndpoint to manually remove enpoints by [adamdriscoll](https://github.com/adamdriscoll)
+
+### Changed 
+
+- Fixed an issue where loading the module a second time would throw an error (#1569) by [adamdriscoll](https://github.com/adamdriscoll)
+- Fixed an issue where UD Enterprise would not successfully load pages when authentication was disabled by [adamdriscoll](https://github.com/adamdriscoll)
+- Fixed an issue where returning a PSCustomObject for use in a UDTable would not work by [adamdriscoll](https://github.com/adamdriscoll)
+- Fixed issue with Nivo chart keys and values being case sensitive (#691) by [adamdriscoll](https://github.com/adamdriscoll)
+- Pages are now always dynmaic by [adamdriscoll](https://github.com/adamdriscoll)
+- Updated New-UDEndpoint to recreate a schedule by [adamdriscoll](https://github.com/adamdriscoll)
+
+### Removed
+
+- Removed -BackgroundColor, -FontColor, -BottomSheet, -FixedFoot from Show-UDModal by [adamdriscoll](https://github.com/adamdriscoll)
+- Removed -UseDataColor from Nivo charts by [adamdriscoll](https://github.com/adamdriscoll)
+
+## 3.0.0-beta1 - 3/28/2020
+
+### Added 
+
+- New-UDForm as a replacement for UDInput by [adamdriscoll](https://github.com/adamdriscoll)
+- Support for vertical tabs in New-UDTabs by [adamdriscoll](https://github.com/adamdriscoll)
+- New-UDDynamic for specifying dynamic sections of pages by [adamdriscoll](https://github.com/adamdriscoll)
+- Multi-Select for New-UDSelect by [adamdriscoll](https://github.com/adamdriscoll)
+
+### Changed
+
+- UD now uses Material UI by default by [adamdriscoll](https://github.com/adamdriscoll)
+- Implemented an enhanced JavaScript API for controls by [adamdriscoll](https://github.com/adamdriscoll)
+- Implemented Material UI Controls by [adamdriscoll](https://github.com/adamdriscoll)
+    - Expansion Panel 
+    - Floating Action Button
+    - Grid
+    - Progress
+    - Select 
+    - Switch
+    - Table 
+    - Tabs
+    - Textbox
+    - TreeView 
+
+## Unreleased (v2)
+
+### Changed
+
+- Fixed wrong definition of FontFamily in DefaultThight theme by [e1ze](https://github.com/e1ze)
+
 ## 2.9.0 - (2-14-2020)
 
 ### Added (Enterprise)

@@ -1,4 +1,46 @@
-function New-UDMuTypography {
+function New-UDTypography {
+    <#
+    .SYNOPSIS
+    Creates typography.
+    
+    .DESCRIPTION
+    Creates typography. Typography allows you to configure text within a dashboard. 
+    
+    .PARAMETER Id
+    The ID of the component. It defaults to a random GUID.
+    
+    .PARAMETER Variant
+    The type of text to display.
+    
+    .PARAMETER Text
+    The text to format. 
+    
+    .PARAMETER Content
+    The content to format. 
+    
+    .PARAMETER Style
+    A set of CSS styles to apply to the typography.
+    
+    .PARAMETER ClassName
+    A CSS className to apply to the typography.
+    
+    .PARAMETER Align
+    How to align the typography.
+    
+    .PARAMETER GutterBottom
+    The gutter bottom. 
+    
+    .PARAMETER NoWrap
+    Disables text wrapping.
+    
+    .PARAMETER Paragraph
+    Whether this typography is a paragraph.
+    
+    .EXAMPLE
+    
+    New-UDTypography -Text 'Hello' -Paragraph
+
+    #>
     [CmdletBinding(DefaultParameterSetName = "text")]
     param(
         [Parameter()]
@@ -8,7 +50,7 @@ function New-UDMuTypography {
         [ValidateSet ("h1", "h2", "h3", "h4", "h5", "h6", "subtitle1", "subtitle2", "body1", "body2", "caption", "button", "overline", "srOnly", "inherit", "display4", "display3", "display2", "display1", "headline", "title", "subheading")]
 		[string]$Variant,
 
-		[Parameter(ParameterSetName = "text")]
+		[Parameter(ParameterSetName = "text", Position = 0)]
 		[string]$Text,
 
         [Parameter(ParameterSetName = "endpoint")]
@@ -34,27 +76,11 @@ function New-UDMuTypography {
 		[Switch]$NoWrap,
 
         [Parameter()]
-		[Switch]$IsParagraph,
-
-        [Parameter(ParameterSetName = "endpoint")]
-		[switch]$AutoRefresh,
-
-        [Parameter(ParameterSetName = "endpoint")]
-		[int]$RefreshInterval = 5
-
+		[Switch]$Paragraph
+        
     )
 
     End {
-
-        if($IsEndPoint){
-            $TextEndpoint = New-UDEndpoint -Endpoint $Content -Id $id
-            if($null -ne $Content){
-                $TextContent = $Content.Invoke()
-            }else{
-                $TextContent = $null
-            }
-        }
-        
         $MUTypography = @{
             #This needs to match what is in the register function call of chips.jsx
             type = "mu-typography"
@@ -67,15 +93,12 @@ function New-UDMuTypography {
             className = $ClassName
             variant = $Variant
             noWrap = $NoWrap.IsPresent
-            isParagraph = $IsParagraph.IsPresent
+            isParagraph = $Paragraph.IsPresent
             text = $Text
             style = $Style
             align = $Align
             content = $TextContent 
-            isEndpoint = $IsEndPoint.IsPresent
             gutterBottom = $GutterBottom.IsPresent
-            refreshInterval = $RefreshInterval
-            autoRefresh = $AutoRefresh.IsPresent
         }
 
         $MUTypography.PSTypeNames.Insert(0, 'UniversalDashboard.MaterialUI.Typography') | Out-Null

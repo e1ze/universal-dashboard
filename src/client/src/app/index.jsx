@@ -9,9 +9,12 @@ import { UniversalDashboardService } from './services/universal-dashboard-servic
 import App from './App';
 import {getApiPath} from 'config';
 
+
 window.react = require('react');
 window['reactdom'] = require('react-dom');
 window['reactrouterdom'] = require('react-router-dom');
+window['themeui'] = require('theme-ui');
+window['themeuicolormodes'] = require('@theme-ui/color-modes');
 
 // To add to window
 if (!window.Promise) {

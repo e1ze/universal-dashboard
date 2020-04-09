@@ -15,14 +15,18 @@ using UniversalDashboard.Interfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.IO;
 using UniversalDashboard.Utilities;
+using System.Collections.Generic;
 
 namespace UniversalDashboard
 {
-    internal class ServerStartup
+    public class ServerStartup
 	{
 		private static readonly Logger Logger = LogManager.GetLogger(nameof(ServerStartup));
 		public IConfigurationRoot Configuration { get; }
 		private AutoReloader _reloader;
+        public static List<Action<IServiceCollection>> ConfigureServiceActions { get; } = new List<Action<IServiceCollection>>();
+        public static List<Action<IMvcBuilder>> ConfigureMvcActions { get; } = new List<Action<IMvcBuilder>>();
+        public static List<Action<IApplicationBuilder, Microsoft.AspNetCore.Hosting.IHostingEnvironment, ILoggerFactory, Microsoft.AspNetCore.Hosting.IApplicationLifetime>> ConfigureActions { get; } = new List<Action<IApplicationBuilder, Microsoft.AspNetCore.Hosting.IHostingEnvironment, ILoggerFactory, Microsoft.AspNetCore.Hosting.IApplicationLifetime>>();
 
         public ServerStartup(Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
 		{
@@ -40,6 +44,8 @@ namespace UniversalDashboard
 
             var dashboardService = services.FirstOrDefault(m => m.ServiceType == typeof(IDashboardService)).ImplementationInstance as IDashboardService;
 
+            ConfigureServiceActions.ForEach(x => x(services));
+
             services.AddResponseCompression();
 			services.AddSignalR(hubOptions =>
             {
@@ -56,9 +62,12 @@ namespace UniversalDashboard
 			services.AddDirectoryBrowser();
 			services.AddMemoryCache();
             services.AddSingleton(new ConnectionManager());
-            services.AddMvc().AddJsonOptions(x => {
+            
+            var mvc = services.AddMvc().AddJsonOptions(x => {
                 x.SerializerSettings.ContractResolver = new CustomContractResolver();
             });
+
+            ConfigureMvcActions.ForEach(x => x(mvc));
 
             if (dashboardService?.DashboardOptions?.Certificate != null || dashboardService?.DashboardOptions?.CertificateFile != null) 
             {
@@ -75,8 +84,6 @@ namespace UniversalDashboard
                         });
                     }
             }
-
-            services.AddScoped<IFilterProvider, EncFilterProvider>();
 
             services.AddSession(options =>
             {
@@ -101,7 +108,6 @@ namespace UniversalDashboard
 			provider.Mappings[".log"] 	= "text/plain";
 			provider.Mappings[".yml"] 	= "text/plain";
 
-			loggerFactory.AddNLog();
 			app.UseResponseCompression();
             app.UseStatusCodePages(async context => {
 
@@ -143,6 +149,8 @@ namespace UniversalDashboard
                 ServeUnknownFileTypes = true,
 				ContentTypeProvider = provider
 			});
+
+            ConfigureActions.ForEach(x => x(app, env, loggerFactory, lifetime));
 
             var dashboardService = app.ApplicationServices.GetService(typeof(IDashboardService)) as IDashboardService;
 

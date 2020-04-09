@@ -1,17 +1,9 @@
-param([Switch]$Release)
+return
+
 
 . "$PSScriptRoot\..\TestFramework.ps1"
-$ModulePath = Get-ModulePath -Release:$Release
-$BrowserPort = Get-BrowserPort -Release:$Release
-
-Import-Module $ModulePath -Force
-
-Get-UDDashboard | Stop-UDDashboard
 
 $Global:MyVariable = "Test"
-
-$Server = Start-UDDashboard -Port 10001 -Dashboard (New-UDDashboard -Title "Test" -Content {}) 
-$Driver = Start-SeFirefox
 
 Describe "Variable Scoping" {
 
@@ -26,7 +18,7 @@ Describe "Variable Scoping" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         Start-sleep 2
@@ -51,7 +43,7 @@ Describe "Variable Scoping" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should start processes with click" {
@@ -67,7 +59,7 @@ Describe "Variable Scoping" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
 
         It "should return global variable" {
             (Invoke-RestMethod http://localhost:10001/api/internal/component/element/element) | should be "Test"
@@ -84,7 +76,7 @@ Describe "Variable Scoping" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
 
         It "should return local variable" {
             (Invoke-RestMethod http://localhost:10001/api/internal/component/element/element) | should be "localVariable"
@@ -101,7 +93,7 @@ Describe "Variable Scoping" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
 
         It "should return loop variable" {
             1..5 | ForEach-Object {
@@ -110,48 +102,4 @@ Describe "Variable Scoping" {
             
         }
     }
-
-    Context "Variable set for process" {
-
-        1..5 | % { Start-Process Notepad }
-
-        $Dashboard = New-UDDashboard -Title "Test" -Content {
-            New-UDTable -Title "Processes" -Headers @("Stop") -Endpoint {
-                Get-Process Notepad* | ForEach-Object {
-                    [PSCustomObject]@{
-                        Stop = New-UDButton -Id "btn$($_.Id)" -Text "Stop" -OnClick (
-                            New-UDEndpoint -Endpoint {
-                                Stop-Process $ArgumentList[0]
-                            } -ArgumentList $_
-                        ) 
-                    }
-                } | Out-UDTableData -Property @("Stop")
-            } 
-        }
-
-        $Server.DashboardService.SetDashboard($Dashboard)
-        Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
-
-        It "should stop processes with click" {
-            Get-Process Notepad* | % {
-                Find-SeElement -Id "btn$($_.Id)" -Driver $Driver | Invoke-SeClick 
-            }
-
-            (Get-Process Notepad* | Measure-Object).Count | Should be 0
-
-            1..5 | % { Start-Process Notepad }
-
-            Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
-            Start-Sleep 2
-
-            Get-Process Notepad* | % {
-                Find-SeElement -Id "btn$($_.Id)" -Driver $Driver | Invoke-SeClick 
-            }
-
-            (Get-Process Notepad* | Measure-Object).Count | Should be 0
-        }
-    }
 }
-
-Stop-SeDriver $Driver
-Stop-UDDashboard -Server $Server 

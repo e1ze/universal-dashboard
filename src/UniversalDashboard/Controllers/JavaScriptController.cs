@@ -19,6 +19,15 @@ namespace PowerShellProTools.UniversalDashboard.Controllers
 
         [Route("framework")]
         public IActionResult Framework() {
+            if (_dashboardService.Dashboard.FrameworkAssetId.StartsWith("http")) {
+                return Redirect(_dashboardService.Dashboard.FrameworkAssetId);
+            }
+
+            if (Path.IsPathRooted(_dashboardService.Dashboard.FrameworkAssetId))
+            {
+                return PhysicalFile(_dashboardService.Dashboard.FrameworkAssetId, "text/javascript");
+            }
+
             return Index(_dashboardService.Dashboard.FrameworkAssetId);
         }
 
@@ -26,6 +35,11 @@ namespace PowerShellProTools.UniversalDashboard.Controllers
         public IActionResult Plugin() {
             var stringBuilder = new StringBuilder();
             foreach(var plugin in AssetService.Instance.Plugins) {
+
+                if (plugin.StartsWith("http")) {
+                    return Redirect(plugin);
+                }
+
                 var pluginContent = System.IO.File.ReadAllText(plugin);
                 stringBuilder.AppendLine(pluginContent);
             }

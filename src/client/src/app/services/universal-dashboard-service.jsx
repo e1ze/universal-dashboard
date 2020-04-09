@@ -1,20 +1,73 @@
 import React from 'react';
-import { fetchGet, fetchPost, fetchDelete, fetchPut, fetchPostRaw, fetchPostFormData } from './fetch-service.jsx';
+import { fetchGet, fetchPost, fetchDelete, fetchPut, fetchPostRaw, fetchPostFormData, fetchPostHeaders } from './fetch-service.jsx';
 import { internalRenderComponent } from './render-service.jsx';
 import LazyElement from './../basics/lazy-element.jsx';
 import PubSub from 'pubsub-js';
 import toaster from './toaster';
 
+var components = []
+
+function isEmpty(obj) {
+    for(var key in obj) { 
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+function isString (obj) {
+    return (Object.prototype.toString.call(obj) === '[object String]');
+}
+
+const renderComponent = (component, history, dynamicallyLoaded) => {
+    if (component == null) return <React.Fragment />;
+    if (isEmpty(component)) return <React.Fragment />;
+
+    if (component.$$typeof === Symbol.for('react.element'))
+    {
+        return component;
+    }
+
+    if (Array.isArray(component)) {
+        return component.map(x => renderComponent(x, history));
+    }
+
+    if (isString(component)) {
+        try 
+        {
+            component = JSON.parse(component);
+        }
+        catch 
+        {
+            return component;
+        }
+    }
+
+    if (component.type == null) return <React.Fragment />;
+
+    var existingComponent = components.find(x => x.type === component.type);
+    if (existingComponent != null) {
+        return React.createElement(existingComponent.component, {
+            ...component,
+            key: component.id,
+            history
+        });
+    } else if (component.isPlugin && !dynamicallyLoaded) {
+        return <LazyElement component={component} key={component.id} history={history} />
+    }
+
+    return internalRenderComponent(component, history);
+}
 
 export const UniversalDashboardService = {
-    components: [],
+    components,
     plugins: [],
     registerPlugin: function (plugin) {
         this.plugins.push(plugin);
     },
     register: function (type, component) {
-        var existingComponent = this.components.find(x => x.type === type);
-        if (!existingComponent) this.components.push({
+        var existingComponent = components.find(x => x.type === type);
+        if (!existingComponent) components.push({
             type,
             component
         });
@@ -25,6 +78,7 @@ export const UniversalDashboardService = {
     post: fetchPost,
     postFormData: fetchPostFormData,
     postRaw: fetchPostRaw,
+    postWithHeaders: fetchPostHeaders,
     put: fetchPut,
     delete: fetchDelete,
     subscribe: PubSub.subscribe,
@@ -32,32 +86,7 @@ export const UniversalDashboardService = {
     publish: PubSub.publishSync,
     toaster: toaster,
     connectionId: '',
-    renderComponent: function (component, history, dynamicallyLoaded) {
-
-        if (component == null) return <React.Fragment />;
-
-        if (component.$$typeof === Symbol.for('react.element'))
-        {
-            return component;
-        }
-
-        if (Array.isArray(component)) {
-            return component.map(x => x.type ? this.renderComponent(x, history) : x);
-        }
-
-        var existingComponent = this.components.find(x => x.type === component.type);
-        if (existingComponent != null) {
-            return React.createElement(existingComponent.component, {
-                ...component,
-                key: component.id,
-                history
-            });
-        } else if (component.isPlugin && !dynamicallyLoaded) {
-            return <LazyElement component={component} key={component.id} history={history} />
-        }
-
-        return internalRenderComponent(component, history);
-    },
+    renderComponent,
     provideDashboardComponents: function (state) {
 
         var components = [];

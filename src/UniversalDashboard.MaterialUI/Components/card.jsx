@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
@@ -8,6 +9,8 @@ import UDCardHeader from "./card-header";
 import UDCardBody from "./card-body";
 import UDCardExpand from "./card-expand";
 import UDCardFooter from "./card-footer";
+import UDCardMedia from './card-media';
+import {jsx} from 'theme-ui'
 
 const styles = theme => ({
   root: {
@@ -59,7 +62,7 @@ export class UDMuCard extends React.Component {
   };
 
   render() {
-    const { classes, id, className, style, showToolBar, toolbar, header, body, expand, footer } = this.props;
+    const { classes, id, className, style, showToolBar, toolbar, header, body, expand, footer, media } = this.props;
     const { expanded, minimized, elevation } = this.state
 
     return (
@@ -72,7 +75,9 @@ export class UDMuCard extends React.Component {
           className={classNames(className,classes.root, "ud-mu-card")}
           onMouseEnter={this.onMouseEnterEvent}
           onMouseLeave={this.onMouseLeaveEvent}
-          style={{ ...style }}>
+          style={{ ...style }}
+          //sx={{ bg: 'background', color: 'text'}}
+          >
 
           {toolbar !== null && showToolBar ?
           <UDCardToolBar
@@ -93,17 +98,8 @@ export class UDMuCard extends React.Component {
             collapsedHeight={0}
             mountOnEnter>
 
-            {header !== null ?
-            <UDCardHeader
-              className={classNames(header.className,{
-                [classes.hidden]: header.content === null
-              })}
-              id={header.id}
-              content={header.content}
-              style={header.style}
-              isEndpoint={header.isEndpoint}
-              refreshInterval={header.refreshInterval}
-              autoRefresh={header.autoRefresh}/> : null}
+            {header !== null ? <UDCardHeader {...header} /> : null}
+            {media !== null ? <UDCardMedia {...media} /> : null}
 
             {body !== null ?
             <UDCardBody

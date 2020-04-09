@@ -1,69 +1,59 @@
-import React from "react";
-import PropTypes from "prop-types";
-import classNames from "classnames"
-import { withStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import UdMuIcon from "./icon";
+/** @jsx jsx */
+import React from 'react'
+import classNames from 'classnames'
+import Button from '@material-ui/core/Button'
+import UdMuIcon from './icon'
+import { withComponentFeatures } from './universal-dashboard'
+import { makeStyles } from '@material-ui/core/styles'
+import { jsx } from 'theme-ui'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   button: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
   },
   leftIcon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing.unit,
   },
   rightIcon: {
-    marginLeft: theme.spacing.unit
+    marginLeft: theme.spacing.unit,
+  },
+}))
+
+const UdButton = props => {
+  const classes = useStyles()
+
+  const handleClick = () => {
+    if (props.onClick == null) return
+    props.notifyOfEvent('onClick', '')
   }
-});
 
-export class UdButton extends React.Component {
+  var icon = props.icon ? (
+    <UdMuIcon
+      {...props.icon}
+      style={
+        props.iconAlignment === 'left' ? { marginRight: 8 } : { marginLeft: 8 }
+      }
+    />
+  ) : null
 
-  handleClick = () => {
-    UniversalDashboard.publish("element-event", {
-      type: "clientEvent",
-      eventId: this.props.id + "onClick",
-      eventName: "",
-      eventData: ""
-    });
-  };
-
-  render() {
-    const { classes } = this.props;
-
-    var icon = this.props.icon ? (
-      <UdMuIcon
-        {...this.props.icon}
-        style={
-          this.props.iconAlignment === "left"
-            ? { marginRight: 8 }
-            : { marginLeft: 8 }
-        }
-      />
-    ) : null
-
-    return (
-      <Button
-        variant={this.props.variant}
-        size={this.props.size}
-        disabled={this.props.disabled}
-        className={classNames(classes.button, "ud-mu-button")}
-        fullWidth={this.props.fullWidth}
-        href={this.props.href}
-        onClick={this.handleClick.bind(this)}
-        style={{ ...this.props.style }}
-        id={this.props.id}
-      >
-        {this.props.iconAlignment === "left" ? icon : null}
-        {this.props.text}
-        {this.props.iconAlignment === "right" ? icon : null}
-      </Button>
-    );
-  }
+  return (
+    <Button
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      className={classNames(classes.button, 'ud-mu-button')}
+      fullWidth={props.fullWidth}
+      href={props.href}
+      onClick={handleClick}
+      style={{ ...props.style }}
+      sx={{ bg: 'primary', color: 'text' }}
+      id={props.id}
+    >
+      {props.iconAlignment === 'left' ? icon : null}
+      {props.text}
+      {props.iconAlignment === 'right' ? icon : null}
+    </Button>
+  )
 }
 
-UdButton.propTypes = {
-  classes: PropTypes.object.isRequired
-};
-
-export default withStyles(styles, { withTheme: true })(UdButton);
+export default withComponentFeatures(UdButton)

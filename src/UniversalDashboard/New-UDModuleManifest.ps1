@@ -5,8 +5,8 @@ param(
 
 Remove-Item  (Join-Path $outputDirectory 'UniversalDashboard.Community.psd1') -ErrorAction SilentlyContinue -Force
 
-$version = "2.9.0"
-#$prerelease = "-beta2"
+$version = "3.0.0"
+$prerelease = "-beta1"
 
 $manifestParameters = @{
 	Guid = 'c7894dd1-357e-4474-b8e1-b416afd70c2d'
@@ -26,6 +26,8 @@ $manifestParameters = @{
     DotNetFrameworkVersion = '4.7'
 	PowerShellVersion = '5.0'
 	FunctionsToExport = @(
+		"New-UDAppBar"
+		"New-UDDrawer"
 		"Out-UDChartData", 
 		"Out-UDGridData", 
 		"Out-UDTableData", 
@@ -94,27 +96,37 @@ $manifestParameters = @{
 		"New-UDTreeView"
         "New-UDTooltip"
 		"Invoke-UDEvent"
-
-		#Material UI
-		'New-UDMuAvatar'
-		'New-UDMuButton'
-		'New-UDMuCard'
-		'New-UDMuCardToolbar'
-		'New-UDMuCardHeader'
-		'New-UDMuCardBody'
-		'New-UDMuCardExpand'
-		'New-UDMuCardFooter'
-		'New-UDMuCardMedia'
-		'New-UDMuCheckBox'
-		'New-UDMuChip'
+		'New-UDAvatar'
+		'New-UDCardToolbar'
+		'New-UDCardHeader'
+		'New-UDCardBody'
+		'New-UDCardExpand'
+		'New-UDCardFooter'
+		'New-UDCardMedia'
+		'New-UDChip'
 		'New-UDIconButton'
-		'New-UDMuLink'
-		'New-UDMuList'
-		'New-UDMuListItem'
-		'New-UDMuPaper'
-		'New-UDPdf'
-        'New-UDMuTypography'
-        
+		'New-UDList'
+		'New-UDListItem'
+		'New-UDPaper'
+		'New-UDTypography'
+		"New-UDTableColumn"
+		"New-UDExpansionPanelGroup"
+        "New-UDExpansionPanel"
+		"New-UDFloatingActionButton"
+		"New-UDTabs"
+		"New-UDProgress"
+		"Out-UDTableData"
+		"New-UDForm"
+		"New-UDDatePicker"
+		"New-UDTimePicker"
+		"New-UDRadio"
+		"New-UDRadioGroup"
+		"New-UDContainer"
+		"New-UDAutocomplete"
+		"New-UDFormValidationResult"
+		"New-UDStep"
+		"New-UDStepper"
+		"New-UDSlider"
 	)
 	CmdletsToExport = @("New-UDChart", 
 						"New-UDDashboard", 
@@ -159,6 +171,9 @@ $manifestParameters = @{
 						"New-UDSideNav"
 						"New-UDSideNavItem"
 						"Clear-UDCache"
+						"New-UDDynamic"
+						"Remove-UDEndpoint"
+						"Invoke-UDEndpoint"
 						)
 }
 

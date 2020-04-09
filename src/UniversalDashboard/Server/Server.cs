@@ -78,6 +78,7 @@ namespace UniversalDashboard
 		public void Start(DashboardOptions dashboardOptions)
 		{
 			IsRestApi = dashboardOptions.Dashboard == null;
+			Port = dashboardOptions.Port;
 
 			if (!dashboardOptions.DisableTelemetry)
 			{
@@ -107,12 +108,6 @@ namespace UniversalDashboard
                         DashboardService.EndpointService.Register(endpoint.Value);
                     }
 
-                    foreach (var endpoint in CmdletExtensions.HostState.EndpointService.ScheduledEndpoints)
-                    {
-                        DashboardService.EndpointService.Register(endpoint);
-                    }
-
-
                     foreach (var endpoint in CmdletExtensions.HostState.EndpointService.RestEndpoints)
                     {
                         DashboardService.EndpointService.Register(endpoint);
@@ -121,7 +116,6 @@ namespace UniversalDashboard
 
                     CmdletExtensions.HostState.EndpointService.Endpoints.Clear();
                     CmdletExtensions.HostState.EndpointService.RestEndpoints.Clear();
-                    CmdletExtensions.HostState.EndpointService.ScheduledEndpoints.Clear();
 
                     y.Add(new ServiceDescriptor(typeof(IDashboardService), DashboardService));
                     
@@ -196,8 +190,8 @@ namespace UniversalDashboard
 			if (this.Running && this.host != null)
 			{
 				this.Running = false;
-                
-				this.host.StopAsync().ConfigureAwait(false);
+
+				this.host.StopAsync(TimeSpan.FromSeconds(1)).Wait();
 
                 DashboardService.Dispose();
 

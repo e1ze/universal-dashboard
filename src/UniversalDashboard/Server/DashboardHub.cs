@@ -14,6 +14,8 @@ using UniversalDashboard.Services;
 using System.Text;
 using UniversalDashboard.Models.Enums;
 using Microsoft.CSharp.RuntimeBinder;
+using System.Collections;
+using System.Linq;
 
 namespace UniversalDashboard
 {
@@ -64,12 +66,12 @@ namespace UniversalDashboard
             await hub.Clients.Client(clientId).SendAsync("clipboard", Data, toastOnSuccess, toastOnError);
         }
 
-        public static async Task SetState(this IHubContext<DashboardHub> hub, string componentId, Element state)
+        public static async Task SetState(this IHubContext<DashboardHub> hub, string componentId, Hashtable state)
         {
             await hub.Clients.All.SendAsync("setState", componentId, state);
         }
 
-        public static async Task SetState(this IHubContext<DashboardHub> hub, string clientId, string componentId, Element state)
+        public static async Task SetState(this IHubContext<DashboardHub> hub, string clientId, string componentId, Hashtable state)
         {
             await hub.Clients.Client(clientId).SendAsync("setState", componentId, state);
         }
@@ -185,7 +187,7 @@ namespace UniversalDashboard
             return Clients.All.SendAsync("reload");
         }
 
-        public async Task RequestStateResponse(string requestId, Element state)
+        public async Task RequestStateResponse(string requestId, Hashtable state)
         {
             await Task.FromResult(0);
 
@@ -262,7 +264,7 @@ namespace UniversalDashboard
                     if (result.Error is Error error)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        Clients.Client(Context.ConnectionId).SendAsync("showError", new { message = error.Message });
+                        Clients.Client(Context.ConnectionId).SendAsync("showError", new { message = error.ErrorRecords.First().Message });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     }
 

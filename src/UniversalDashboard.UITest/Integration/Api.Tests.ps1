@@ -1,66 +1,22 @@
-﻿param([Switch]$Release)
+﻿. "$PSScriptRoot\..\TestFramework.ps1"
 
-. "$PSScriptRoot\..\TestFramework.ps1"
-$ModulePath = Get-ModulePath -Release:$Release
-
-Import-Module $ModulePath -Force
-
-Get-UDRestApi | Stop-UDRestApi
-Get-UDDashboard | Stop-UDDashboard
 Describe "Api" {
-
-    Context "script block with requires" {
-        $Server = Start-UDRestApi -Port 10001 -Endpoint @(
-
-            $ScriptBlock = [ScriptBlock]::Create((Get-Content (Join-Path $PSScriptRoot "../Assets/requires.txt") -Raw))
-
-            New-UDEndpoint -Url "/scriptblock" -Method "GET" -Endpoint $ScriptBlock
-        ) 
-
-        It "not throw an error" {
-            (Invoke-RestMethod http://localhost:10001/api/scriptblock?hello=test) | Should be "Hello"
-        }
-
-        Stop-UDRestApi $Server
-    }
-
-    Context "Special Characters" {
-        $Server = Start-UDRestApi -Port 10001 -Endpoint @(
-            New-UDEndpoint -Url "/recherches" -Method "GET" -Endpoint {
-                'éèù' | ConvertTo-Json
-            }
-        ) 
-
-        It "doesn't mess up the characters" {
-            (Invoke-RestMethod http://localhost:10001/api/recherches) | Should be "éèù"
-        }
-
-        Stop-UDRestApi $Server
-    }
-
-    Context "Performance" {
-        $Server = Start-UDRestApi -Port 10001 -Endpoint @(
-            New-UDEndpoint -Url "user" -Method "GET" -Endpoint {
-                @("Adam", "Bill", "Frank") | ConvertTo-Json
-            }
-        ) 
-
-        It "Is fast" {
-            (Measure-Command -Expression { 
-                1..100 | % { Invoke-RestMethod http://localhost:10001/api/user  }
-            }).TotalSeconds | Should BeLessThan 15
-        }
-
-        Stop-UDRestApi $Server
-    }
-
     Context "Components" {
 
         $Variable = @("Some text")
         
         $Init = New-UDEndpointInitialization -Variable "Variable"
 
-        $Server = Start-UDRestApi -Port 10001 -Endpoint @(
+        $ScriptBlock = [ScriptBlock]::Create((Get-Content (Join-Path $PSScriptRoot "../Assets/requires.txt") -Raw))
+
+        Start-UDRestApi -Force -Port 10001 -Endpoint @(
+
+            New-UDEndpoint -Url "/recherches" -Method "GET" -Endpoint {
+                'éèù' | ConvertTo-Json
+            }
+
+            New-UDEndpoint -Url "/scriptblock" -Method "GET" -Endpoint $ScriptBlock
+
             New-UDEndpoint -Url "user" -Method "GET" -Endpoint {
                 @("Adam", "Bill", "Frank") | ConvertTo-Json
             }
@@ -138,11 +94,37 @@ Describe "Api" {
                 
                 "memberOf$id"
             }
+
+            New-UDEndpoint -Url "/options" -Method "OPTIONS" -Endpoint {
+                $body
+            }
+
+            $wsPOST = New-UDEndpoint -Url "/SpireonEvents" -Method POST -Endpoint {
+                param($Body)
+                    $jsonBody = ConvertFrom-Json $Body
+        
+                    Write-Output ($jsonBody | ConvertTo-Json)
+                }
+
             ) -EndpointInitialization $Init
 
 
         New-UDEndpoint -Url "/afterstartup" -Method "GET" -Endpoint {
             "After Startup"
+        }
+
+        It "Is fast" -Skip {
+            (Measure-Command -Expression { 
+                1..100 | % { Invoke-RestMethod http://localhost:10001/api/user  }
+            }).TotalSeconds | Should BeLessThan 15
+        }
+
+        It "doesn't mess up the characters" {
+            (Invoke-RestMethod http://localhost:10001/api/recherches) | Should be "éèù"
+        }
+
+        It "not throw an error" {
+            (Invoke-RestMethod http://localhost:10001/api/scriptblock?hello=test) | Should be "Hello"
         }
 
         It "should work with nested routes" {
@@ -241,37 +223,15 @@ Describe "Api" {
             $result | Should be "test"
         }
 
-        Stop-UDRestApi $Server
-    }
-
-    Context "Post without content type"{
-
-        $wsPOST = New-UDEndpoint -Url "/SpireonEvents" -Method POST -Endpoint {
-        param($Body)
-            $jsonBody = ConvertFrom-Json $Body
-
-            Write-Output ($jsonBody | ConvertTo-Json)
-        }
-
-        $Server = Start-UDRestApi -Port 1001 -Endpoint @(
-                    $wsPOST
-                )
-
         It "Should return JSON even if no content type specified"{
             $json = (@{FilePath = "code"; Arguments = "script.ps1" } | ConvertTo-Json)
-            $result = Invoke-RestMethod -Uri 'http://localhost:1001/api/SpireonEvents' -Method POST -Body $json #-ContentType 'application/json'
+            $result = Invoke-RestMethod -Uri 'http://localhost:10001/api/SpireonEvents' -Method POST -Body $json #-ContentType 'application/json'
             $result | Should Be '@{Arguments=script.ps1; FilePath=code}'
         }
 
-        $RunspaceCount = (Get-Runspace).Length
-
-        $Server| Stop-UDDashboard
-        Stop-UDRestApi $Server
-
-        It "should get disposed of runspaces"{
-            $NewRunspaceCount = (Get-Runspace).Length
-
-            $RunspaceCount | should BeGreaterThan $NewRunspaceCount
+        It "should support options"{
+            $result = Invoke-RestMethod -Uri 'http://localhost:10001/api/options' -Method "OPTIONS" -Body "hello"
+            $result | Should Be 'hello'
         }
     }
 }

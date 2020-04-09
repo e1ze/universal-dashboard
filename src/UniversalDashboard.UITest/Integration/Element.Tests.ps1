@@ -1,18 +1,11 @@
-param([Switch]$Release)
+return 
 
 . "$PSScriptRoot\..\TestFramework.ps1"
-$ModulePath = Get-ModulePath -Release:$Release
-$BrowserPort = Get-BrowserPort -Release:$Release
-
-Import-Module $ModulePath -Force
-
-Get-UDDashboard | Stop-UDDashboard
 
 Describe "Element" {
 
     $Dashboard = New-UDDashboard -Title "Test" -Content {}
-    $Server = Start-UDDashboard -Dashboard $Dashboard -Port 10001
-    $Driver = Start-SeFirefox
+    Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
     Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
     Context "Get-UDELement" {
@@ -36,7 +29,7 @@ Describe "Element" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should get element content" {
@@ -88,7 +81,7 @@ Describe "Element" {
             }
         }
         
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should update via parameter" {
@@ -119,7 +112,7 @@ Describe "Element" {
             New-UDElement -Id 'parent' -Tag 'div' -Content { }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should use an endpoint" {
@@ -134,7 +127,7 @@ Describe "Element" {
             New-UDElement -Tag A -Id "element" -Attributes @{onclick = 'kaboom'} -Content {'IAMME'}
         }
         
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should not show error" {
@@ -151,7 +144,7 @@ Describe "Element" {
             }
         }
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "has heading" {
@@ -197,7 +190,7 @@ Describe "Element" {
             }
         } 
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "should enter a chat message" {
@@ -245,7 +238,7 @@ Describe "Element" {
         
         $Dashboard = New-UDDashboard -Title 'home' -Pages $HomePage,$HomePage2
 
-        $Server.DashboardService.SetDashboard($Dashboard)
+        Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
         Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
 
         It "Should work in dynamic page" {
@@ -280,7 +273,7 @@ Describe "Element" {
 
          $dashboard = New-UDDashboard -Title "PowerShell Universal Dashboard" -Pages $homePage
 
-         $Server.DashboardService.SetDashboard($Dashboard)
+         Start-UDDashboard -Dashboard $Dashboard -Port 10001 -Force
          Enter-SeUrl -Driver $Driver -Url "http://localhost:$BrowserPort"
  
          It "has only 1 cached endpoint" {
@@ -298,7 +291,4 @@ Describe "Element" {
              (Find-SeElement -Driver $Driver -Id "sessionInfo").Text | should be "2"
          }
     }
-
-    Get-UDDashboard | Stop-UDDashboard
-    Stop-SeDriver $Driver
 }

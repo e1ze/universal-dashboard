@@ -19,6 +19,11 @@ namespace UniversalDashboard.Models
         public Page Page { get; set; }
         public Regex UrlRegEx { get; set; }
         public bool AcceptFileUpload {get; set;}
+        public bool Asynchronous { get; set; }
+        public Dictionary<string, object> Properties { get; set; }
+        public string ContentType { get; set; } 
+        public string Accept { get; set; }
+        public bool IsPage { get; set; }
     }
 
     public class Part

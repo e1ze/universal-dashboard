@@ -1,12 +1,9 @@
 using NLog;
 using System.Management.Automation;
-using UniversalDashboard.Models.Basics;
-using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using Microsoft.Extensions.Caching.Memory;
-using System.Security.Claims;
 using UniversalDashboard.Services;
+using System.Collections;
 
 namespace UniversalDashboard.Cmdlets
 {
@@ -35,7 +32,7 @@ namespace UniversalDashboard.Cmdlets
 
             var retry = 0;
             while(retry < 10) {
-                if (!stateRequestService.TryGet(_requestId, out Element value)) {
+                if (!stateRequestService.TryGet(_requestId, out Hashtable value)) {
                     stateRequestService.EventAvailable.WaitOne(100);
                     retry++;
                     continue;
